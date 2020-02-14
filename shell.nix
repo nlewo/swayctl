@@ -11,6 +11,7 @@ let
 in
   pkgs.mkShell {
     buildInputs = with pkgs; [
+      rustfmt
       updateCrateDeps
       pkg-config
       rustc
