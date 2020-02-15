@@ -59,6 +59,10 @@ fn main() {
     }
 }
 
+// An i3 compatible command. Can contain several commands separated
+// with ';'
+type Command = String;
+
 // Store workspace attributes used to identify a workspace
 #[derive(PartialEq, Debug)]
 pub struct Workspace {
@@ -119,17 +123,17 @@ fn find_or_create(ws: reply::Workspaces, name: String) -> Workspace {
         })
 }
 
-fn move_to(ws: reply::Workspaces, name: String) -> Option<String> {
+fn move_to(ws: reply::Workspaces, name: String) -> Option<Command> {
     let w = find_or_create(ws, name);
     Some(format!("move container to workspace {}", w.id()))
 }
 
-fn show(ws: reply::Workspaces, name: String) -> Option<String> {
+fn show(ws: reply::Workspaces, name: String) -> Option<Command> {
     let w = find_or_create(ws, name);
     Some(format!("workspace {}", w.id()))
 }
 
-fn list(ws: reply::Workspaces) -> Option<String> {
+fn list(ws: reply::Workspaces) -> Option<Command> {
     let names: Vec<String> = ws
         .workspaces
         .iter()
@@ -142,7 +146,7 @@ fn list(ws: reply::Workspaces) -> Option<String> {
     None
 }
 
-fn rename(ws: reply::Workspaces, name: String) -> Option<String> {
+fn rename(ws: reply::Workspaces, name: String) -> Option<Command> {
     let current = ws
         .workspaces
         .iter()
@@ -164,7 +168,7 @@ fn rename(ws: reply::Workspaces, name: String) -> Option<String> {
     Some(cmd)
 }
 
-fn bind(ws: reply::Workspaces, to: i32) -> Option<String> {
+fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
     let mut cmds = Vec::new();
 
     let current = ws
