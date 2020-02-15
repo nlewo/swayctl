@@ -67,51 +67,52 @@ pub struct Workspace {
     pub name: Option<String>,
 }
 
-fn workspace_id(ws: &Workspace) -> String {
-    let mut id = Vec::new();
-    if let Some(num) = ws.num {
-        id.push(num.to_string())
-    };
-    if let Some(name) = &ws.name {
-        id.push(name.to_string())
-    };
-    id.join(": ")
-}
-
 fn workspace_move(src: &Workspace, dest: &Workspace) -> String {
     format!(
         "rename workspace {} to {}",
-        workspace_id(&src),
-        workspace_id(&dest)
+        src.id(),
+        dest.id()
     )
 }
 
-fn new_workspace(ws: &reply::Workspace) -> Workspace {
-    let v: Vec<&str> = ws.name.split(": ").collect();
-    let num = if v.len() == 1 && ws.name == ws.num.to_string() && ws.num != -1 {
-        Some(ws.num)
-    } else if v.len() == 2 && ws.num != -1 {
-        Some(ws.num)
-    } else {
-        None
-    };
-    let name = if v.len() == 1 && ws.name != ws.num.to_string() {
-        Some(v[0].to_string())
-    } else if v.len() == 2 {
-        Some(v[1].to_string())
-    } else {
-        None
-    };
-    return Workspace {
-        num: num,
-        name: name,
-    };
+impl Workspace {
+    fn new(ws: &reply::Workspace) -> Workspace {
+        let v: Vec<&str> = ws.name.split(": ").collect();
+        let num = if v.len() == 1 && ws.name == ws.num.to_string() && ws.num != -1 {
+            Some(ws.num)
+        } else if v.len() == 2 && ws.num != -1 {
+            Some(ws.num)
+        } else {
+            None
+        };
+        let name = if v.len() == 1 && ws.name != ws.num.to_string() {
+            Some(v[0].to_string())
+        } else if v.len() == 2 {
+            Some(v[1].to_string())
+        } else {
+            None
+        };
+        return Workspace {
+            num: num,
+            name: name,
+        };
+    }
+    fn id(&self) -> String {
+        let mut id = Vec::new();
+        if let Some(num) = self.num {
+            id.push(num.to_string())
+        };
+        if let Some(name) = &self.name {
+            id.push(name.to_string())
+        };
+        id.join(": ")
+    }
 }
 
 fn find_or_create(ws: reply::Workspaces, name: String) -> Workspace {
     ws.workspaces
         .iter()
-        .map(|w| new_workspace(w))
+        .map(|w| Workspace::new(w))
         .find(|w| w.name.as_ref().map(|x| x == &name).unwrap_or(false))
         .unwrap_or(Workspace {
             num: None,
@@ -121,19 +122,19 @@ fn find_or_create(ws: reply::Workspaces, name: String) -> Workspace {
 
 fn moveTo(ws: reply::Workspaces, name: String) -> Option<String> {
     let w = find_or_create(ws, name);
-    Some(format!("move container to workspace {}", workspace_id(&w)))
+    Some(format!("move container to workspace {}", w.id()))
 }
 
 fn show(ws: reply::Workspaces, name: String) -> Option<String> {
     let w = find_or_create(ws, name);
-    Some(format!("workspace {}", workspace_id(&w)))
+    Some(format!("workspace {}", w.id()))
 }
 
 fn list(ws: reply::Workspaces) -> Option<String> {
     let names: Vec<String> = ws
         .workspaces
         .iter()
-        .map(|w| new_workspace(w))
+        .map(|w| Workspace::new(w))
         .filter(|w| w.name.is_some())
         .map(|w| w.name.unwrap())
         .collect();
@@ -147,7 +148,7 @@ fn rename(ws: reply::Workspaces, name: String) -> Option<String> {
         .workspaces
         .iter()
         .find(|&w| w.focused)
-        .map(|w| new_workspace(w))
+        .map(|w| Workspace::new(w))
         .unwrap();
 
     if let Some(n) = current.name {
@@ -160,7 +161,7 @@ fn rename(ws: reply::Workspaces, name: String) -> Option<String> {
         num: current.num,
         name: Some(name),
     };
-    let cmd = format!("rename workspace to \"{}\"", workspace_id(&renamed));
+    let cmd = format!("rename workspace to \"{}\"", renamed.id());
     Some(cmd)
 }
 
@@ -171,7 +172,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<String> {
         .workspaces
         .iter()
         .find(|&w| w.focused)
-        .map(|w| new_workspace(w))
+        .map(|w| Workspace::new(w))
         .unwrap();
 
     // If the destination is the current position, do nothing
@@ -185,7 +186,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<String> {
         .workspaces
         .iter()
         .find(|&w| w.num == to)
-        .map(|w| new_workspace(w));
+        .map(|w| Workspace::new(w));
 
     let new = Workspace {
         num: Some(to),
@@ -230,28 +231,28 @@ fn new_workspaces() {
         }
     }
     assert_eq!(
-        new_workspace(&dummy_ws(1, "1")),
+        Workspace::new(&dummy_ws(1, "1")),
         Workspace {
             num: Some(1),
             name: None
         }
     );
     assert_eq!(
-        new_workspace(&dummy_ws(1, "1: mail")),
+        Workspace::new(&dummy_ws(1, "1: mail")),
         Workspace {
             num: Some(1),
             name: Some("mail".to_string())
         }
     );
     assert_eq!(
-        new_workspace(&dummy_ws(1, "mail")),
+        Workspace::new(&dummy_ws(1, "mail")),
         Workspace {
             num: None,
             name: Some("mail".to_string())
         }
     );
     assert_eq!(
-        new_workspace(&dummy_ws(-1, "-1: mail")),
+        Workspace::new(&dummy_ws(-1, "-1: mail")),
         Workspace {
             num: None,
             name: Some("mail".to_string())
