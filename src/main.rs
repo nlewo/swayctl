@@ -1,7 +1,6 @@
 extern crate i3ipc;
 use i3ipc::reply;
 use i3ipc::I3Connection;
-
 use clap::{App, AppSettings, Arg, SubCommand};
 
 fn main() {
@@ -60,6 +59,7 @@ fn main() {
     }
 }
 
+// Store workspace attributes used to identify a workspace
 #[derive(PartialEq, Debug)]
 pub struct Workspace {
     pub num: Option<i32>,
@@ -88,6 +88,7 @@ impl Workspace {
             name: name,
         };
     }
+    /// id returns an id to uniquely identify a workspace based on its attributes
     fn id(&self) -> String {
         let mut id = Vec::new();
         if let Some(num) = self.num {
@@ -191,8 +192,11 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<String> {
         name: current.name.clone(),
     };
 
-    // If the destination workspace already exist,
-    // swap current and destination workspaces
+    // If the destination workspace already exists, we first rename
+    // the destination workspace with a temporary name to free its
+    // index. We can then move the current workspace to the
+    // destination index. Finally, we move the temporary named
+    // workspace to the current index.
     if let Some(d) = dest {
         let tmp = Workspace {
             num: None,
