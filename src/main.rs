@@ -66,14 +66,6 @@ pub struct Workspace {
     pub name: Option<String>,
 }
 
-fn workspace_move(src: &Workspace, dest: &Workspace) -> String {
-    format!(
-        "rename workspace {} to {}",
-        src.id(),
-        dest.id()
-    )
-}
-
 impl Workspace {
     fn new(ws: &reply::Workspace) -> Workspace {
         let v: Vec<&str> = ws.name.split(": ").collect();
@@ -105,6 +97,13 @@ impl Workspace {
             id.push(name.to_string())
         };
         id.join(": ")
+    }
+    fn move_to(&self, dest: &Workspace) -> String {
+        format!(
+            "rename workspace {} to {}",
+            self.id(),
+            dest.id()
+        )
     }
 }
 
@@ -199,19 +198,19 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<String> {
             num: None,
             name: Some("internal-tmp-swapping".to_string()),
         };
-        cmds.push(workspace_move(&d, &tmp));
+        cmds.push(d.move_to(&tmp));
 
-        cmds.push(workspace_move(&current, &new));
+        cmds.push(current.move_to(&new));
 
         let swap = Workspace {
             num: current.num,
             name: d.name,
         };
-        cmds.push(workspace_move(&tmp, &swap));
+        cmds.push(tmp.move_to(&swap));
     }
     // Otherwise, just move the current workspace to the destination
     else {
-        cmds.push(workspace_move(&current, &new));
+        cmds.push(current.move_to(&new));
     }
     Some(cmds.join("; "))
 }
