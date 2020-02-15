@@ -1,7 +1,7 @@
 extern crate i3ipc;
+use clap::{App, AppSettings, Arg, SubCommand};
 use i3ipc::reply;
 use i3ipc::I3Connection;
-use clap::{App, AppSettings, Arg, SubCommand};
 
 fn main() {
     let app = App::new("sway-dynamic-workspace")
@@ -104,11 +104,7 @@ impl Workspace {
         id.join(": ")
     }
     fn move_to(&self, dest: &Workspace) -> String {
-        format!(
-            "rename workspace {} to {}",
-            self.id(),
-            dest.id()
-        )
+        format!("rename workspace {} to {}", self.id(), dest.id())
     }
 }
 
