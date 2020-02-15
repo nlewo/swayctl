@@ -1,7 +1,6 @@
 extern crate i3ipc;
 use i3ipc::reply;
 use i3ipc::I3Connection;
-use i3ipc::MessageError;
 
 use clap::{App, AppSettings, Arg, SubCommand};
 
@@ -49,7 +48,7 @@ fn main() {
         ("bind", Some(args)) => bind(ws, args.value_of("to").unwrap().parse().unwrap()),
         ("rename", Some(args)) => rename(ws, args.value_of("name").unwrap().to_string()),
         ("show", Some(args)) => show(ws, args.value_of("name").unwrap().to_string()),
-        ("move", Some(args)) => moveTo(ws, args.value_of("name").unwrap().to_string()),
+        ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
         _ => None,
     };
@@ -120,7 +119,7 @@ fn find_or_create(ws: reply::Workspaces, name: String) -> Workspace {
         })
 }
 
-fn moveTo(ws: reply::Workspaces, name: String) -> Option<String> {
+fn move_to(ws: reply::Workspaces, name: String) -> Option<String> {
     let w = find_or_create(ws, name);
     Some(format!("move container to workspace {}", w.id()))
 }
