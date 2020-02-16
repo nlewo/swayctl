@@ -8,7 +8,7 @@ fn main() {
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
             SubCommand::with_name("bind")
-                .about("Bind a workspace to an index")
+                .about("Bind a workspace to an index. The destination workspace must have a name")
                 .arg(
                     Arg::with_name("to")
                         .required(true)
@@ -198,6 +198,13 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
     // destination index. Finally, we move the temporary named
     // workspace to the current index.
     if let Some(d) = dest {
+        // If the destination index is bound to a not named workspace,
+        // we just skip this binding. If we don't, we could loose the
+        // destination workspace (no bound anymore and no name).
+        if let None = d.name {
+            return None;
+        }
+
         let tmp = Workspace {
             num: None,
             name: Some("internal-tmp-swapping".to_string()),
