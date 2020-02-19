@@ -49,13 +49,15 @@ fn main() {
         ("show", Some(args)) => show(ws, args.value_of("name").unwrap().to_string()),
         ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
-        _ => None,
+        _ => Err("".to_string()),
     };
 
-    if let Some(c) = ret {
-        if let Err(e) = connection.run_command(&c) {
+    match ret {
+        Ok(Some(c)) => if let Err(e) = connection.run_command(&c) {
             println!("{:?}", e)
-        }
+        },
+        Err(e) => println!("{:?}", e),
+        _ => println!("Unexpected error"),
     }
 }
 
@@ -119,17 +121,17 @@ fn find_or_create(ws: reply::Workspaces, name: String) -> Workspace {
         })
 }
 
-fn move_to(ws: reply::Workspaces, name: String) -> Option<Command> {
+fn move_to(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String> {
     let w = find_or_create(ws, name);
-    Some(format!("move container to workspace {}", w.id()))
+    Ok(Some(format!("move container to workspace {}", w.id())))
 }
 
-fn show(ws: reply::Workspaces, name: String) -> Option<Command> {
+fn show(ws: reply::Workspaces, name: String) -> Result<Option<Command>,String> {
     let w = find_or_create(ws, name);
-    Some(format!("workspace {}", w.id()))
+    Ok(Some(format!("workspace {}", w.id())))
 }
 
-fn list(ws: reply::Workspaces) -> Option<Command> {
+fn list(ws: reply::Workspaces) -> Result<Option<Command>,String> {
     let names: Vec<String> = ws
         .workspaces
         .iter()
@@ -139,10 +141,10 @@ fn list(ws: reply::Workspaces) -> Option<Command> {
         .collect();
 
     println!("{}", names.join("\n"));
-    None
+    Ok(None)
 }
 
-fn rename(ws: reply::Workspaces, name: String) -> Option<Command> {
+fn rename(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String> {
     let current = ws
         .workspaces
         .iter()
@@ -150,10 +152,14 @@ fn rename(ws: reply::Workspaces, name: String) -> Option<Command> {
         .map(|w| Workspace::new(w))
         .unwrap();
 
-    if let Some(n) = current.name {
-        if n == name {
-            return None;
-        }
+    let alreadyExist = ws
+        .workspaces
+        .iter()
+        .map(|w| Workspace::new(w))
+        .find(|w| w.name == Some(name.to_string()));
+
+    if alreadyExist.is_some() {
+        return Err(format!("Workspace name {} already exists", name));
     };
 
     let renamed = Workspace {
@@ -161,10 +167,10 @@ fn rename(ws: reply::Workspaces, name: String) -> Option<Command> {
         name: Some(name),
     };
     let cmd = format!("rename workspace to \"{}\"", renamed.id());
-    Some(cmd)
+    Ok(Some(cmd))
 }
 
-fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
+fn bind(ws: reply::Workspaces, to: i32) -> Result<Option<Command>,String> {
     let mut cmds = Vec::new();
 
     let current = ws
@@ -177,7 +183,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
     // If the destination is the current position, do nothing
     if let Some(num) = current.num {
         if num == to {
-            return None;
+            return Ok(None);
         }
     }
 
@@ -202,7 +208,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
         // we just skip this binding. If we don't, we could loose the
         // destination workspace (no bound anymore and no name).
         if let None = d.name {
-            return None;
+            return Err("The destination index is bound to a not named workspace".to_string());
         }
 
         let tmp = Workspace {
@@ -223,7 +229,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Option<Command> {
     else {
         cmds.push(current.move_to(&new));
     }
-    Some(cmds.join("; "))
+    Ok(Some(cmds.join("; ")))
 }
 
 #[test]
