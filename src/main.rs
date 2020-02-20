@@ -53,11 +53,12 @@ fn main() {
     };
 
     match ret {
-        Ok(Some(c)) => if let Err(e) = connection.run_command(&c) {
-            println!("{:?}", e)
-        },
-        Err(e) => println!("{:?}", e),
-        _ => println!("Unexpected error"),
+        Ok(Some(c)) =>
+            if let Err(e) = connection.run_command(&c) {
+                println!("Run command error {:?}", e)
+            },
+        Err(e) => println!("Command error {:?}", e),
+        Ok(None) => (),
     }
 }
 
@@ -152,13 +153,13 @@ fn rename(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String
         .map(|w| Workspace::new(w))
         .unwrap();
 
-    let alreadyExist = ws
+    let already_exist = ws
         .workspaces
         .iter()
         .map(|w| Workspace::new(w))
         .find(|w| w.name == Some(name.to_string()));
 
-    if alreadyExist.is_some() {
+    if already_exist.is_some() {
         return Err(format!("Workspace name {} already exists", name));
     };
 
