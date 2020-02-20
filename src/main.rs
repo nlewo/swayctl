@@ -76,25 +76,34 @@ pub struct Workspace {
 
 impl Workspace {
     fn new(ws: &reply::Workspace) -> Workspace {
-        let v: Vec<&str> = ws.name.split(": ").collect();
-        let num = if v.len() == 1 && ws.name == ws.num.to_string() && ws.num != -1 {
-            Some(ws.num)
-        } else if v.len() == 2 && ws.num != -1 {
-            Some(ws.num)
-        } else {
-            None
-        };
-        let name = if v.len() == 1 && ws.name != ws.num.to_string() {
-            Some(v[0].to_string())
-        } else if v.len() == 2 {
-            Some(v[1].to_string())
-        } else {
-            None
-        };
-        return Workspace {
-            num: num,
-            name: name,
-        };
+        let mut parts = ws.name.split(": ");
+        match (parts.next(), parts.next()) {
+            (Some(_), None) => {
+                if ws.name == ws.num.to_string() {
+                    Workspace {
+                        num: Some(ws.num),
+                        name: None,
+                    }
+                } else {
+                    Workspace {
+                        num: None,
+                        name: Some(ws.name.to_string()),
+                    }
+                }
+            }
+            (Some("-1"), Some(name)) => Workspace {
+                num: None,
+                name: Some(name.to_string()),
+            },
+            (Some(_), Some(name)) => Workspace {
+                num: Some(ws.num),
+                name: Some(name.to_string()),
+            },
+            (None, _) => Workspace {
+                num: None,
+                name: None,
+            },
+        }
     }
     /// id returns an id to uniquely identify a workspace based on its attributes
     fn id(&self) -> String {
