@@ -53,11 +53,12 @@ fn main() {
     };
 
     match ret {
-        Ok(Some(c)) =>
+        Ok(Some(c)) => {
             if let Err(e) = connection.run_command(&c) {
                 println!("Run command error {:?}", e)
-            },
-        Err(e) => println!("Command error {:?}", e),
+            }
+        }
+        Err(e) => println!("Command error: {}", e),
         Ok(None) => (),
     }
 }
@@ -127,12 +128,12 @@ fn move_to(ws: reply::Workspaces, name: String) -> Result<Option<Command>, Strin
     Ok(Some(format!("move container to workspace {}", w.id())))
 }
 
-fn show(ws: reply::Workspaces, name: String) -> Result<Option<Command>,String> {
+fn show(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String> {
     let w = find_or_create(ws, name);
     Ok(Some(format!("workspace {}", w.id())))
 }
 
-fn list(ws: reply::Workspaces) -> Result<Option<Command>,String> {
+fn list(ws: reply::Workspaces) -> Result<Option<Command>, String> {
     let names: Vec<String> = ws
         .workspaces
         .iter()
@@ -160,7 +161,7 @@ fn rename(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String
         .find(|w| w.name == Some(name.to_string()));
 
     if already_exist.is_some() {
-        return Err(format!("Workspace name {} already exists", name));
+        return Err(format!("a workspace named {} already exists", name));
     };
 
     let renamed = Workspace {
@@ -171,7 +172,7 @@ fn rename(ws: reply::Workspaces, name: String) -> Result<Option<Command>, String
     Ok(Some(cmd))
 }
 
-fn bind(ws: reply::Workspaces, to: i32) -> Result<Option<Command>,String> {
+fn bind(ws: reply::Workspaces, to: i32) -> Result<Option<Command>, String> {
     let mut cmds = Vec::new();
 
     let current = ws
@@ -209,7 +210,7 @@ fn bind(ws: reply::Workspaces, to: i32) -> Result<Option<Command>,String> {
         // we just skip this binding. If we don't, we could loose the
         // destination workspace (no bound anymore and no name).
         if let None = d.name {
-            return Err("The destination index is bound to a not named workspace".to_string());
+            return Err("the destination index is bound to a not named workspace".to_string());
         }
 
         let tmp = Workspace {
