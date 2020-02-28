@@ -1,5 +1,5 @@
 [package]
-name = "sway-dynamic-ws"
+name = "swayctl"
 version = "0.1.0"
 authors = ["Antoine Eiche <lewo@abesis.fr>"]
 edition = "2018"

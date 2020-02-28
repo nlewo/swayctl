@@ -4,7 +4,7 @@ use i3ipc::reply;
 use i3ipc::I3Connection;
 
 fn main() {
-    let app = App::new("sway-dynamic-workspace")
+    let app = App::new("swayctl")
         .setting(AppSettings::SubcommandRequiredElseHelp)
         .subcommand(
             SubCommand::with_name("bind")

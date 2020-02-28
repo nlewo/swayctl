@@ -6,7 +6,7 @@ let
   # TODO: fix gitignore and replace this by gitignre
   # See https://github.com/NixOS/nixpkgs/issues/69138
   sources = builtins.path {
-    name = "hydra-cli-filtered-source";
+    name = "swayctl-filtered-source";
     path = ./.;
     filter = (path: type:
       baseNameOf path != ".git" &&

@@ -3,6 +3,27 @@ The [Xmonad Dynamic Workspace](https://hackage.haskell.org/package/xmonad-contri
 Basically, this allows to create named workspaces and bind them to
 indexes (from 1 to 10) in order to access them quickly.
 
+
+### The `swayctl` usage:
+
+    swayctl 
+
+    USAGE:
+        swayctl <SUBCOMMAND>
+
+    FLAGS:
+        -h, --help       Prints help information
+        -V, --version    Prints version information
+
+    SUBCOMMANDS:
+        bind      Bind a workspace to an index. The destination workspace must have a name
+        help      Prints this message or the help of the given subcommand(s)
+        list      List all workspaces
+        move      Move a container to a workspace
+        rename    Rename a workspace
+        show      Show a workspace
+
+
 ### My Sway configuration
 
     # Switch to indexes
@@ -18,38 +39,19 @@ indexes (from 1 to 10) in order to access them quickly.
     bindsym $mod+agrave workspace number 10
 
     # Bind the current workspace to an index
-    bindsym $mod+Control+ampersand exec sway-dynamic-ws bind 1
-    bindsym $mod+Control+eacute exec sway-dynamic-ws bind  2
-    bindsym $mod+Control+quotedbl exec sway-dynamic-ws bind  3
-    bindsym $mod+Control+apostrophe exec sway-dynamic-ws bind  4
-    bindsym $mod+Control+parenleft exec sway-dynamic-ws bind  5
-    bindsym $mod+Control+minus exec sway-dynamic-ws bind  6
-    bindsym $mod+Control+egrave exec sway-dynamic-ws bind  7
-    bindsym $mod+Control+underscore exec sway-dynamic-ws bind  8
-    bindsym $mod+Control+ccedilla exec sway-dynamic-ws bind  9
-    bindsym $mod+Control+agrave exec sway-dynamic-ws bind  10
+    bindsym $mod+Control+ampersand exec swayctl bind 1
+    bindsym $mod+Control+eacute exec swayctl bind  2
+    bindsym $mod+Control+quotedbl exec swayctl bind  3
+    bindsym $mod+Control+apostrophe exec swayctl bind  4
+    bindsym $mod+Control+parenleft exec swayctl bind  5
+    bindsym $mod+Control+minus exec swayctl bind  6
+    bindsym $mod+Control+egrave exec swayctl bind  7
+    bindsym $mod+Control+underscore exec swayctl bind  8
+    bindsym $mod+Control+ccedilla exec swayctl bind  9
+    bindsym $mod+Control+agrave exec swayctl bind  10
 
     # Move a container to a named workspace
-    bindsym $mod+Shift+x exec sway-dynamic-ws list | dmenu -p "Move container to workspace: " | xargs sway-dynamic-ws move 
+    bindsym $mod+Shift+x exec swayctl list | dmenu -p "Move container to workspace: " | xargs swayctl move 
 
     # Switch or create a named workspace
-    bindsym $mod+x exec sway-dynamic-ws list | dmenu -p "Show or create workspace: " | xargs sway-dynamic-ws show 
-
-### The `sway-dynamic-ws` usage:
-
-    sway-dynamic-workspace 
-
-    USAGE:
-        sway-dynamic-ws <SUBCOMMAND>
-
-    FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
-
-    SUBCOMMANDS:
-        bind      Bind a workspace to an index
-        help      Prints this message or the help of the given subcommand(s)
-        list      List all workspaces
-        move      Move a container to a workspace
-        rename    Rename a workspace
-        show      Show a workspace
+    bindsym $mod+x exec swayctl list | dmenu -p "Show or create workspace: " | xargs swayctl show 
