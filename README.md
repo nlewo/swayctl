@@ -1,10 +1,15 @@
 The [Xmonad Dynamic Workspace](https://hackage.haskell.org/package/xmonad-contrib-0.16/docs/XMonad-Actions-DynamicWorkspaces.html) behavior for Sway.
 
-Basically, this allows to create named workspaces and bind them to
-indexes (from 1 to 10) in order to access them quickly.
+Basically, it allows to create named workspaces and dynamically bind
+them to indexes (from 1 to 10) in order to access them quickly.
 
 
-### The `swayctl` usage:
+### Getting started
+
+    nix run -f https://github.com/nlewo/swayctl/archive/master.tar.gz -c swayctl --help
+
+
+### The `swayctl` usage
 
     swayctl 
 
@@ -38,7 +43,7 @@ indexes (from 1 to 10) in order to access them quickly.
     bindsym $mod+ccedilla workspace number 9
     bindsym $mod+agrave workspace number 10
 
-    # Bind the current workspace to an index
+    # Bind the current workspace to an index (french keyboard)
     bindsym $mod+Control+ampersand exec swayctl bind 1
     bindsym $mod+Control+eacute exec swayctl bind  2
     bindsym $mod+Control+quotedbl exec swayctl bind  3
@@ -54,4 +59,8 @@ indexes (from 1 to 10) in order to access them quickly.
     bindsym $mod+Shift+x exec swayctl list | dmenu -p "Move container to workspace: " | xargs swayctl move 
 
     # Switch or create a named workspace
+    # Tip: use Shift+Return to ignore the completion of dmenu
     bindsym $mod+x exec swayctl list | dmenu -p "Show or create workspace: " | xargs swayctl show 
+
+    # Rename the current workspace
+    bindsym $mod+Shift+Control+x exec echo "" | dmenu -p "Rename workspace: " | xargs swayctl rename 
