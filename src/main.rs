@@ -2,6 +2,7 @@ extern crate i3ipc;
 use clap::{App, AppSettings, Arg, SubCommand};
 use i3ipc::reply;
 use i3ipc::I3Connection;
+use itertools::Itertools;
 
 fn main() {
     let app = App::new("swayctl")
@@ -149,6 +150,7 @@ fn list(ws: reply::Workspaces) -> Result<Option<Command>, String> {
         .map(|w| Workspace::new(w))
         .filter(|w| w.name.is_some())
         .map(|w| w.name.unwrap())
+        .sorted()
         .collect();
 
     println!("{}", names.join("\n"));

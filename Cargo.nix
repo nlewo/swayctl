@@ -105,12 +105,12 @@ rec {
         dependencies = [
           {
             name = "hermit-abi";
-            packageId = "hermit-abi 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)";
+            packageId = "hermit-abi 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)";
             target = { target, features }: (target."os" == "hermit");
           }
           {
             name = "libc";
-            packageId = "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)";
+            packageId = "libc 0.2.67 (registry+https://github.com/rust-lang/crates.io-index)";
             usesDefaultFeatures = false;
             target = { target, features }: target."unix";
           }
@@ -214,18 +214,30 @@ rec {
         };
         resolvedDefaultFeatures = [ "ansi_term" "atty" "color" "default" "strsim" "suggestions" "vec_map" ];
       };
-      "hermit-abi 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
-        crateName = "hermit-abi";
-        version = "0.1.6";
+      "either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
+        crateName = "either";
+        version = "1.5.3";
         edition = "2015";
-        sha256 = "0wippj5nkw9q5yyyaqpdrgdhag3l3nbrwja7149cwn7ii1nnbwpg";
+        sha256 = "1qyz1b1acad6w0k5928jw5zaq900zhsk7p8dlcp4hh61w4f6n7xv";
+        authors = [
+          "bluss"
+        ];
+        features = {
+          "default" = [ "use_std" ];
+        };
+      };
+      "hermit-abi 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
+        crateName = "hermit-abi";
+        version = "0.1.8";
+        edition = "2015";
+        sha256 = "1n7g3bkd0hh9gnnmdzdzrrywqqb0hq8ypaxfkxg87zmv4qdmj40h";
         authors = [
           "Stefan Lankes"
         ];
         dependencies = [
           {
             name = "libc";
-            packageId = "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)";
+            packageId = "libc 0.2.67 (registry+https://github.com/rust-lang/crates.io-index)";
             usesDefaultFeatures = false;
           }
         ];
@@ -267,6 +279,26 @@ rec {
           "i3-next" = [ "i3-4-14" ];
         };
       };
+      "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
+        crateName = "itertools";
+        version = "0.8.2";
+        edition = "2015";
+        sha256 = "1154j48aw913v5jnyhpxialxhdn2sfpl4d7bwididyb1r05jsspm";
+        authors = [
+          "bluss"
+        ];
+        dependencies = [
+          {
+            name = "either";
+            packageId = "either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)";
+            usesDefaultFeatures = false;
+          }
+        ];
+        features = {
+          "default" = [ "use_std" ];
+        };
+        resolvedDefaultFeatures = [ "default" "use_std" ];
+      };
       "itoa 0.4.5 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
         crateName = "itoa";
         version = "0.4.5";
@@ -279,11 +311,11 @@ rec {
           "default" = [ "std" ];
         };
       };
-      "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
+      "libc 0.2.67 (registry+https://github.com/rust-lang/crates.io-index)" = rec {
         crateName = "libc";
-        version = "0.2.66";
+        version = "0.2.67";
         edition = "2015";
-        sha256 = "0n0mwry21fxfwc063k33mvxk8xj7ia5ar8m42c9ymbam2ksb25fm";
+        sha256 = "061hpl3fr382s2asj7appkr1nbbxccb8f0x9nwxd8kprrnbpa57b";
         authors = [
           "The Rust Project Developers"
         ];
@@ -399,6 +431,10 @@ rec {
           {
             name = "i3ipc";
             packageId = "i3ipc 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)";
+          }
+          {
+            name = "itertools";
+            packageId = "itertools 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)";
           }
         ];
         
