@@ -11,7 +11,7 @@ them to indexes (from 1 to 10) in order to access them quickly.
 
 ### The `swayctl` usage
 
-    swayctl 
+    swayctl
 
     USAGE:
         swayctl <SUBCOMMAND>
@@ -27,6 +27,7 @@ them to indexes (from 1 to 10) in order to access them quickly.
         move      Move a container to a workspace
         rename    Rename a workspace
         show      Show a workspace
+        swap      Swap visible workspaces
 
 
 ### My Sway configuration
@@ -56,11 +57,11 @@ them to indexes (from 1 to 10) in order to access them quickly.
     bindsym $mod+Control+agrave exec swayctl bind  10
 
     # Move a container to a named workspace
-    bindsym $mod+Shift+x exec swayctl list | dmenu -p "Move container to workspace: " | xargs swayctl move 
+    bindsym $mod+Shift+x exec swayctl list | dmenu -p "Move container to workspace: " | xargs swayctl move
 
     # Switch or create a named workspace
     # Tip: use Shift+Return to ignore the completion of dmenu
-    bindsym $mod+x exec swayctl list | dmenu -p "Show or create workspace: " | xargs swayctl show 
+    bindsym $mod+x exec swayctl list | dmenu -p "Show or create workspace: " | xargs swayctl show
 
     # Rename the current workspace
-    bindsym $mod+Shift+Control+x exec echo "" | dmenu -p "Rename workspace: " | xargs swayctl rename 
+    bindsym $mod+Shift+Control+x exec echo "" | dmenu -p "Rename workspace: " | xargs swayctl rename
