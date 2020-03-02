@@ -37,7 +37,8 @@ fn main() {
                         .help("The destination workspace name"),
                 ),
         )
-        .subcommand(SubCommand::with_name("list").about("List all workspaces"));
+        .subcommand(SubCommand::with_name("list").about("List all workspaces"))
+        .subcommand(SubCommand::with_name("swap").about("Swap visible workspaces"));
 
     let matches = app.get_matches();
 
@@ -50,6 +51,7 @@ fn main() {
         ("show", Some(args)) => show(ws, args.value_of("name").unwrap().to_string()),
         ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
+        ("swap", Some(_args)) => swap(ws),
         _ => Err("".to_string()),
     };
 
@@ -242,6 +244,29 @@ fn bind(ws: reply::Workspaces, to: i32) -> Result<Option<Command>, String> {
     else {
         cmds.push(current.move_to(&new));
     }
+    Ok(Some(cmds.join("; ")))
+}
+
+fn swap(ws: reply::Workspaces) -> Result<Option<Command>, String> {
+    let mut cmds = Vec::new();
+
+    let visible = ws
+        .workspaces
+        .iter()
+        .filter(|&w| w.visible)
+        .collect::<Vec<&i3ipc::reply::Workspace>>();
+
+    if visible.len() !=2 {
+        return Ok(None);
+    }
+
+    let current = visible.iter().find(|&w| w.focused).unwrap();
+    let other = visible.iter().find(|&w| !w.focused).unwrap();
+
+    cmds.push(format!("move workspace to output {}", other.output));
+    cmds.push(format!("workspace {}", other.name));
+    cmds.push(format!("move workspace to output {}", current.output));
+
     Ok(Some(cmds.join("; ")))
 }
 
