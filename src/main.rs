@@ -114,48 +114,26 @@ impl Workspace {
 
     fn from_i3ws(ws: &reply::Workspace) -> Workspace {
         let mut parts = ws.name.split(": ");
-        match (parts.next(), parts.next()) {
+        let (num, name) = match (parts.next(), parts.next()) {
             (Some(_), None) => {
                 if ws.name == ws.num.to_string() {
-                    Workspace {
-                        num: Some(ws.num),
-                        name: None,
-                        output: Some(ws.output.clone()),
-                        visible: ws.visible,
-                        focused: ws.focused,
-                    }
+                    (Some(ws.num), None)
                 } else {
-                    Workspace {
-                        num: None,
-                        name: Some(ws.name.to_string()),
-                        output: Some(ws.output.clone()),
-                        visible: ws.visible,
-                        focused: ws.focused,
-                    }
+                    (None, Some(ws.name.to_string()))
                 }
             }
-            (Some("-1"), Some(name)) => Workspace {
-                num: None,
-                name: Some(name.to_string()),
-                output: Some(ws.output.clone()),
-                visible: ws.visible,
-                focused: ws.focused,
-            },
-            (Some(_), Some(name)) => Workspace {
-                num: Some(ws.num),
-                name: Some(name.to_string()),
-                output: Some(ws.output.clone()),
-                visible: ws.visible,
-                focused: ws.focused,
-            },
+            (Some("-1"), Some(name)) => (None, Some(name.to_string())),
+            (Some(_), Some(name)) => (Some(ws.num), Some(name.to_string())),
             // Should not be reached
-            (None, _) => Workspace {
-                num: None,
-                name: None,
-                output: None,
-                visible: false,
-                focused: false,
-            },
+            (None, _) => (None, None),
+        };
+        
+        Workspace{
+            num: num,
+            name: name,
+            output: Some(ws.output.clone()),
+            visible: ws.visible,
+            focused: ws.focused,
         }
     }
     /// id returns an id to uniquely identify a workspace based on its attributes
