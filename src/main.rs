@@ -62,12 +62,12 @@ fn main() {
     let ret = match matches.subcommand() {
         ("bind", Some(args)) => bind(ws, args.value_of("to").unwrap().parse().unwrap()),
         ("rename", Some(args)) => rename(ws, args.value_of("name").unwrap().to_string()),
-        ("show-name", Some(args)) => show(ws, args.value_of("name").unwrap().to_string(), 0),
+        ("show-name", Some(args)) => show(
+            &ws,
+            find_or_create_by_name(&ws, args.value_of("name").unwrap().to_string())),
         ("show-num", Some(args)) => show(
-            ws,
-            "".to_string(),
-            args.value_of("num").unwrap().parse().unwrap(),
-        ),
+            &ws,
+            find_or_create_by_number(&ws, args.value_of("num").unwrap().parse().unwrap())),
         ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
         ("swap", Some(_args)) => swap(ws),
@@ -111,6 +111,7 @@ impl Workspace {
             focused: false,
         }
     }
+
     fn from_i3ws(ws: &reply::Workspace) -> Workspace {
         let mut parts = ws.name.split(": ");
         match (parts.next(), parts.next()) {
@@ -234,17 +235,9 @@ fn move_to(ws: reply::Workspaces, name: String) -> Result<Option<Command>, Strin
     Ok(Some(format!("move container to workspace {}", w.id())))
 }
 
-fn show(ws: reply::Workspaces, name: String, number: i32) -> Result<Option<Command>, String> {
+fn show(ws: &reply::Workspaces, target: Workspace) -> Result<Option<Command>, String> {
     let cmds: Vec<String>;
-    let target: Workspace;
-
-    if number > 0 {
-        target = find_or_create_by_number(&ws, number)
-    } else {
-        target = find_or_create_by_name(&ws, name)
-    }
-
-    let current = find_current(&ws);
+    let current = find_current(ws);
 
     if target == current {
         return Ok(None);
