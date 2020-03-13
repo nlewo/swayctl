@@ -23,7 +23,7 @@ fn main() {
                 .arg(Arg::with_name("name").required(true).help("The new name")),
         )
         .subcommand(
-            SubCommand::with_name("show-name")
+            SubCommand::with_name("show-by-name")
                 .about("Show a workspace by it's name")
                 .arg(
                     Arg::with_name("name")
@@ -32,7 +32,7 @@ fn main() {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("show-num")
+            SubCommand::with_name("show-by-num")
                 .about("Show a workspace by it's number")
                 .arg(
                     Arg::with_name("num")
@@ -62,11 +62,13 @@ fn main() {
     let ret = match matches.subcommand() {
         ("bind", Some(args)) => bind(ws, args.value_of("to").unwrap().parse().unwrap()),
         ("rename", Some(args)) => rename(ws, args.value_of("name").unwrap().to_string()),
-        ("show-name", Some(args)) => show(ws, args.value_of("name").unwrap().to_string(), 0),
-        ("show-num", Some(args)) => show(
-            ws,
-            "".to_string(),
-            args.value_of("num").unwrap().parse().unwrap(),
+        ("show-by-name", Some(args)) => show(
+            &ws,
+            find_or_create_by_name(&ws, args.value_of("name").unwrap().to_string()),
+        ),
+        ("show-by-num", Some(args)) => show(
+            &ws,
+            find_or_create_by_number(&ws, args.value_of("num").unwrap().parse().unwrap()),
         ),
         ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
@@ -111,50 +113,29 @@ impl Workspace {
             focused: false,
         }
     }
+
     fn from_i3ws(ws: &reply::Workspace) -> Workspace {
         let mut parts = ws.name.split(": ");
-        match (parts.next(), parts.next()) {
+        let (num, name) = match (parts.next(), parts.next()) {
             (Some(_), None) => {
                 if ws.name == ws.num.to_string() {
-                    Workspace {
-                        num: Some(ws.num),
-                        name: None,
-                        output: Some(ws.output.clone()),
-                        visible: ws.visible,
-                        focused: ws.focused,
-                    }
+                    (Some(ws.num), None)
                 } else {
-                    Workspace {
-                        num: None,
-                        name: Some(ws.name.to_string()),
-                        output: Some(ws.output.clone()),
-                        visible: ws.visible,
-                        focused: ws.focused,
-                    }
+                    (None, Some(ws.name.to_string()))
                 }
             }
-            (Some("-1"), Some(name)) => Workspace {
-                num: None,
-                name: Some(name.to_string()),
-                output: Some(ws.output.clone()),
-                visible: ws.visible,
-                focused: ws.focused,
-            },
-            (Some(_), Some(name)) => Workspace {
-                num: Some(ws.num),
-                name: Some(name.to_string()),
-                output: Some(ws.output.clone()),
-                visible: ws.visible,
-                focused: ws.focused,
-            },
+            (Some("-1"), Some(name)) => (None, Some(name.to_string())),
+            (Some(_), Some(name)) => (Some(ws.num), Some(name.to_string())),
             // Should not be reached
-            (None, _) => Workspace {
-                num: None,
-                name: None,
-                output: None,
-                visible: false,
-                focused: false,
-            },
+            (None, _) => (None, None),
+        };
+
+        Workspace {
+            num: num,
+            name: name,
+            output: Some(ws.output.clone()),
+            visible: ws.visible,
+            focused: ws.focused,
         }
     }
     /// id returns an id to uniquely identify a workspace based on its attributes
@@ -234,17 +215,9 @@ fn move_to(ws: reply::Workspaces, name: String) -> Result<Option<Command>, Strin
     Ok(Some(format!("move container to workspace {}", w.id())))
 }
 
-fn show(ws: reply::Workspaces, name: String, number: i32) -> Result<Option<Command>, String> {
+fn show(ws: &reply::Workspaces, target: Workspace) -> Result<Option<Command>, String> {
     let cmds: Vec<String>;
-    let target: Workspace;
-
-    if number > 0 {
-        target = find_or_create_by_number(&ws, number)
-    } else {
-        target = find_or_create_by_name(&ws, name)
-    }
-
-    let current = find_current(&ws);
+    let current = find_current(ws);
 
     if target == current {
         return Ok(None);
@@ -369,31 +342,43 @@ fn new_workspaces() {
         }
     }
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "1")),
+        Workspace::from_i3ws(&dummy_ws(1, "1")),
         Workspace {
             num: Some(1),
-            name: None
+            name: None,
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "1: mail")),
+        Workspace::from_i3ws(&dummy_ws(1, "1: mail")),
         Workspace {
             num: Some(1),
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "mail")),
+        Workspace::from_i3ws(&dummy_ws(1, "mail")),
         Workspace {
             num: None,
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(-1, "-1: mail")),
+        Workspace::from_i3ws(&dummy_ws(-1, "-1: mail")),
         Workspace {
             num: None,
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     )
 }
