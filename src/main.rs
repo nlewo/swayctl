@@ -340,31 +340,43 @@ fn new_workspaces() {
         }
     }
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "1")),
+        Workspace::from_i3ws(&dummy_ws(1, "1")),
         Workspace {
             num: Some(1),
-            name: None
+            name: None,
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "1: mail")),
+        Workspace::from_i3ws(&dummy_ws(1, "1: mail")),
         Workspace {
             num: Some(1),
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(1, "mail")),
+        Workspace::from_i3ws(&dummy_ws(1, "mail")),
         Workspace {
             num: None,
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     );
     assert_eq!(
-        Workspace::new(&dummy_ws(-1, "-1: mail")),
+        Workspace::from_i3ws(&dummy_ws(-1, "-1: mail")),
         Workspace {
             num: None,
-            name: Some("mail".to_string())
+            name: Some("mail".to_string()),
+            visible: true,
+            focused: true,
+            output: Some("".to_string()),
         }
     )
 }
