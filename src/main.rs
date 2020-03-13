@@ -23,7 +23,7 @@ fn main() {
                 .arg(Arg::with_name("name").required(true).help("The new name")),
         )
         .subcommand(
-            SubCommand::with_name("show-name")
+            SubCommand::with_name("show-by-name")
                 .about("Show a workspace by it's name")
                 .arg(
                     Arg::with_name("name")
@@ -32,7 +32,7 @@ fn main() {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("show-num")
+            SubCommand::with_name("show-by-num")
                 .about("Show a workspace by it's number")
                 .arg(
                     Arg::with_name("num")
@@ -62,12 +62,14 @@ fn main() {
     let ret = match matches.subcommand() {
         ("bind", Some(args)) => bind(ws, args.value_of("to").unwrap().parse().unwrap()),
         ("rename", Some(args)) => rename(ws, args.value_of("name").unwrap().to_string()),
-        ("show-name", Some(args)) => show(
+        ("show-by-name", Some(args)) => show(
             &ws,
-            find_or_create_by_name(&ws, args.value_of("name").unwrap().to_string())),
-        ("show-num", Some(args)) => show(
+            find_or_create_by_name(&ws, args.value_of("name").unwrap().to_string()),
+        ),
+        ("show-by-num", Some(args)) => show(
             &ws,
-            find_or_create_by_number(&ws, args.value_of("num").unwrap().parse().unwrap())),
+            find_or_create_by_number(&ws, args.value_of("num").unwrap().parse().unwrap()),
+        ),
         ("move", Some(args)) => move_to(ws, args.value_of("name").unwrap().to_string()),
         ("list", Some(_args)) => list(ws),
         ("swap", Some(_args)) => swap(ws),
@@ -127,8 +129,8 @@ impl Workspace {
             // Should not be reached
             (None, _) => (None, None),
         };
-        
-        Workspace{
+
+        Workspace {
             num: num,
             name: name,
             output: Some(ws.output.clone()),
