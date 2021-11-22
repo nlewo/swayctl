@@ -106,8 +106,8 @@ pub struct Workspace {
 impl Workspace {
     fn new(num: Option<i32>, name: Option<String>) -> Workspace {
         Workspace {
-            num: num,
-            name: name,
+            num,
+            name,
             output: None,
             visible: false,
             focused: false,
@@ -131,8 +131,8 @@ impl Workspace {
         };
 
         Workspace {
-            num: num,
-            name: name,
+            num,
+            name,
             output: Some(ws.output.clone()),
             visible: ws.visible,
             focused: ws.focused,
@@ -332,7 +332,7 @@ fn swap(ws: reply::Workspaces) -> Result<Option<Command>, String> {
 fn new_workspaces() {
     fn dummy_ws(num: i32, name: &str) -> reply::Workspace {
         reply::Workspace {
-            num: num,
+            num,
             name: name.to_string(),
             visible: true,
             focused: true,
